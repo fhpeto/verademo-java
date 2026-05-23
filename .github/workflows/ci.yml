@@ -84,7 +84,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          repository: veracode-demo-labs/verademo-java
+          repository: fhpeto/verademo-java #using my forked repo to introduce sonarcloud integration
           fetch-depth: 0
 
       - name: Set up JDK 17
@@ -95,7 +95,6 @@ jobs:
           cache: maven
 
       - name: Run SonarQube Analysis
-        working-directory: ./app
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
