@@ -95,6 +95,7 @@ jobs:
           cache: maven
 
       - name: Run SonarQube Analysis
+        working-directory: ./app
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
