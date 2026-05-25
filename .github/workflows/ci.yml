@@ -48,7 +48,7 @@ jobs:
         with:
           path: ./app
           format: cyclonedx-json
-          output-file: ./app
+          output-file: ./app/sbom.cdx.json
           artifact-name: sbom.cdx.json
 
       - name: Scan SBOM with Grype
@@ -89,4 +89,4 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+        run: mvn -B verify sonar:sonar
