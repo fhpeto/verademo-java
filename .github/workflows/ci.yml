@@ -85,7 +85,7 @@ jobs:
           cache: maven
 
       - name: Run SonarQube Analysis
-        uses: SonarSource/sonarqube-scan-action@8.1.0 # Ex: v4.1.0 or sha1, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
+        uses: SonarSource/sonarqube-scan-action@8.0.0 # Ex: v4.1.0 or sha1, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
         with:
           projectBaseDir: app
           scannerVersion: 5.6.0.6792
