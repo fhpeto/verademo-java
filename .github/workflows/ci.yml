@@ -85,8 +85,10 @@ jobs:
           cache: maven
 
       - name: Run SonarQube Analysis
-        working-directory: ./app
+        uses: SonarSource/sonarqube-scan-action@8.1.0 # Ex: v4.1.0 or sha1, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
+        with:
+          projectBaseDir: app
+          scannerVersion: 5.6.0.6792
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:5.6.0.6792:sonar
+          SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
