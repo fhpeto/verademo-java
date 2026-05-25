@@ -47,16 +47,17 @@ jobs:
         uses: anchore/sbom-action@v0
         with:
           path: ./app
-          format: cyclonedx-xml
-          output-file: sbom.cdx.xml
+          format: cyclonedx-json
+          output-file: ./app
+          artifact-name: sbom.cdx.json
 
       - name: Scan SBOM with Grype
         working-directory: ./app
         run: |
           curl -sSfL https://get.anchore.io/grype | sudo sh -s -- -b /usr/local/bin
-          grype --fail-on low sbom:sbom.cdx.xml
+          grype --fail-on low sbom:sbom.cdx.json
 
-      - name: Upload Build Artifact #
+      - name: Upload Build Artifact 
         uses: actions/upload-artifact@v4
         with:
           name: war-artifact
