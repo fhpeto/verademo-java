@@ -4,8 +4,8 @@ name: Build, SCA, SAST Pipeline
 
 on:
   push:
-    branches:
-      - fomo-ci
+    branches: ["fomo-ci", "main"]
+    
 
 jobs:
   # ============================================
