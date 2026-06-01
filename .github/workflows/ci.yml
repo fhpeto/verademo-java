@@ -1,0 +1,100 @@
+# File: .github/workflows/ci.yml
+
+name: Build, SCA, SAST Pipeline
+
+on:
+  push:
+    branches:
+      - fomo-ci
+
+jobs:
+  # ============================================
+  # JOB 1: Build and Testing
+  # ============================================
+  build-and-testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: fhpeto/verademo-java
+          ref: fomo-ci
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        working-directory: ./app
+        run: mvn -B clean verify --file pom.xml
+
+  # ============================================
+  # JOB 2: Software Composition Analysis (SCA)
+  # ============================================
+  software-composition-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: fhpeto/verademo-java
+          ref: fomo-ci
+
+      - name: Generate SBOM with Syft
+        uses: anchore/sbom-action@v0
+        with:
+          path: ./app
+          format: cyclonedx-json
+          output-file: ./app/sbom.cdx.json
+          artifact-name: sbom.cdx.json
+
+      - name: Scan SBOM with Grype
+        working-directory: ./app
+        run: |
+          curl -sSfL https://get.anchore.io/grype | sudo sh -s -- -b /usr/local/bin
+          grype --fail-on low sbom:sbom.cdx.json
+
+      - name: Upload Build Artifact 
+        uses: actions/upload-artifact@v4
+        with:
+          name: war-artifact
+          path: ./app/target/*.war
+          if-no-files-found: error
+
+  # ============================================
+  # JOB 3: SAST with SonarQube
+  # ============================================
+  sast-sonarqube:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: fhpeto/verademo-java #using my forked repo to introduce sonarcloud integration
+          ref: fomo-ci 
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+          
+        # ADD THIS: Build the project first
+      - name: Build with Maven
+        working-directory: ./app
+        run:
+          mvn -B clean verify
+      
+      - name: Run SonarQube Analysis
+        uses: SonarSource/sonarqube-scan-action@v8.0.0 # Ex: v4.1.0 or sha1, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
+        with:
+          projectBaseDir: app
+          scannerVersion: 6.2.0.4584
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
